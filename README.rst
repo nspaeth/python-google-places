@@ -144,6 +144,9 @@ Reference
 
             types    -- An optional list of types, restricting the results to Places (default [])
 
+	    next_page_token -- If specified, all other parameters are ignored and
+                   	       the next page of results is retrieved. A maximum of 3 requests( 60 places)
+			       can be made for the same query using next_page_token. 
 
       text_search(**kwargs)
         Returns googleplaces.GooglePlacesSearchResult
