@@ -105,7 +105,7 @@ def geocode_location(location, sensor=False):
     if geo_response['status'] == GooglePlaces.RESPONSE_STATUS_ZERO_RESULTS:
         error_detail = ('Lat/Lng for location \'%s\' can\'t be determined.' %
                         location)
-        raise GooglePlacesError(error_detail)
+        raise GooglePlacesError(error_detail, status=geo_response['status'])
     return geo_response['results'][0]['geometry']['location']
 
 def _get_place_details(place_id, api_key, sensor=False,
@@ -157,11 +157,13 @@ def _validate_response(url, response):
                                   GooglePlaces.RESPONSE_STATUS_ZERO_RESULTS]:
         error_detail = ('Request to URL %s failed with response code: %s' %
                         (url, response['status']))
-        raise GooglePlacesError(error_detail)
+        raise GooglePlacesError(error_detail, status=response['status'])
 
 
 class GooglePlacesError(Exception):
-    pass
+	def __init__(self, msg, status=None):
+		super(Exception, self).__init__(msg)
+		self.status = status
 
 
 class GooglePlacesAttributeError(AttributeError):
@@ -201,6 +203,8 @@ class GooglePlaces(object):
     MAXIMUM_SEARCH_RADIUS = 50000
     RESPONSE_STATUS_OK = 'OK'
     RESPONSE_STATUS_ZERO_RESULTS = 'ZERO_RESULTS'
+    RESPONSE_STATUS_INVALID = 'INVALID_REQUEST'
+    RESPONSE_STATUS_NOT_FOUND = 'NOT_FOUND'
 
     def __init__(self, api_key):
         self._api_key = api_key
