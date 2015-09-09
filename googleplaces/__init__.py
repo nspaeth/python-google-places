@@ -108,18 +108,21 @@ def geocode_location(location, sensor=False):
         raise GooglePlacesError(error_detail)
     return geo_response['results'][0]['geometry']['location']
 
-def _get_place_details(place_id, api_key, sensor=False,
-                       language=lang.ENGLISH):
+def _get_place_details(place_id, api_key, sensor=False, language=lang.ENGLISH, by_reference=False):
     """Gets a detailed place response.
 
     keyword arguments:
     place_id -- The unique identifier for the required place.
     """
-    url, detail_response = _fetch_remote_json(GooglePlaces.DETAIL_API_URL,
-                                              {'placeid': place_id,
-                                               'sensor': str(sensor).lower(),
-                                               'key': api_key,
-                                               'language': language})
+    query = {'placeid': place_id,
+             'sensor': str(sensor).lower(),
+             'key': api_key,
+             'language': language}
+    if by_reference:
+        query['reference'] = place_id
+        del query['placeid']
+
+    url, detail_response = _fetch_remote_json(GooglePlaces.DETAIL_API_URL, query)
     _validate_response(url, detail_response)
     return detail_response['result']
 
@@ -448,7 +451,7 @@ class GooglePlaces(object):
                         self.api_key), json.dumps(data), use_http_post=True)
         _validate_response(url, checkin_response)
 
-    def get_place(self, place_id, sensor=False, language=lang.ENGLISH):
+    def get_place(self, place_id, sensor=False, language=lang.ENGLISH, by_reference=False):
         """Gets a detailed place object.
 
         keyword arguments:
@@ -458,8 +461,7 @@ class GooglePlaces(object):
         language -- The language code, indicating in which language the
                     results should be returned, if possible. (default lang.ENGLISH)
         """
-        place_details = _get_place_details(place_id,
-                self.api_key, sensor, language=language)
+        place_details = _get_place_details(place_id, self.api_key, sensor, language=language, by_reference=by_reference)
         return Place(self, place_details)
 
     def add_place(self, **kwargs):
