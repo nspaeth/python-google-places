@@ -802,6 +802,7 @@ class Place(object):
         self._reference = place_data.get('reference', '')
         self._name = place_data.get('name','')
         self._vicinity = place_data.get('vicinity', '')
+        self._formatted_address = place_data.get('formatted_address', '')
         self._geo_location = place_data['geometry']['location']
         self._rating = place_data.get('rating','')
         self._types = place_data.get('types','')
